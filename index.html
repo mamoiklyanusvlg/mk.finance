@@ -480,7 +480,7 @@ function vRevenue() {
   const topCard = top ? '<div style="padding:12px 0;display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:15px;font-weight:800">' + longDate(top.date) + '</div><div class="num" style="font-size:17px;font-weight:800">' + money(top.gross) + ' ₽</div></div>' +
     '<div class="g3"><div class="soft" style="padding:8px 10px"><div class="t" style="font-size:11px">Касса</div><div class="num" style="font-size:14px;font-weight:700">' + money(top.cash) + '</div><div class="t" style="font-size:11px">' + top.checks + ' чеков · ' + money(top.avgCheck) + '</div></div>' +
     '<div class="soft" style="padding:8px 10px"><div class="t" style="font-size:11px">Яндекс</div><div class="num" style="font-size:14px;font-weight:700">' + money(top.yaDelivery + top.yaPickup) + '</div><div class="t" style="font-size:11px">' + top.yaOrders + ' заказов</div></div>' +
-    cooperBox(top) + '</div></div>' : '';
+    cooperBox(top) + '</div>' + dayChannels(top) + '</div>' : '';
   return '<div class="head"><div style="display:flex;flex-direction:column;gap:2px">' + monthHead() + '<h1>Выручка</h1></div></div>' +
     '<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:14px;font-weight:600" class="muted">Всего GROSS</div><div class="num" style="font-size:22px;font-weight:800">' + money(t.gross) + ' ₽</div></div>' +
     '<div class="stack">' + ch.filter((c) => c[1] > 0).map((c) => '<div style="width:' + (c[1] / (t.gross || 1) * 100) + '%;background:' + CH_COLORS[c[0]] + '"></div>').join('') + '</div>' +
@@ -490,8 +490,12 @@ function vRevenue() {
       const dt = pdate(x.date);
       return '<button class="row" data-act="revDay" data-date="' + x.date + '"><div style="width:40px;display:flex;flex-direction:column;align-items:center"><span style="font-size:17px;font-weight:800">' + dt.getDate() + '</span><span style="font-size:11px;font-weight:600;color:' + (isWeekend(x.date) ? 'var(--link)' : 'var(--muted)') + '">' + esc(x.wd) + '</span></div>' +
         '<div class="grow" style="gap:4px"><div style="display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--bg)"><div style="width:' + (x.cash / max * 100) + '%;background:var(--ink)"></div><div style="width:' + (x.agg / max * 100) + '%;background:var(--yellow)"></div></div>' +
-        '<div class="sub">касса ' + money(x.cash) + ' · агрегаторы ' + money(x.agg) + (x.cooper ? ' · Купер ' + money(x.cooper) : '') + '</div></div><div class="amt" style="font-size:15px">' + money(x.gross) + '</div></button>';
+        '<div class="sub">нал ' + money(x.cashNal) + ' · безнал ' + money(x.cashCard) + ' · СБП ' + money(x.cashSbp) + '</div><div class="sub">Яндекс ' + money(x.yaDelivery + x.yaPickup) + (x.cooper ? ' · Купер ' + money(x.cooper) : '') + ' · подробнее ›</div></div><div class="amt" style="font-size:15px">' + money(x.gross) + '</div></button>';
     }).join('') + (days.length ? '' : '<div class="empty">Пока нет выручки</div>') + '</div>';
+}
+function dayChannels(x) {
+  const ch = [['Наличные', x.cashNal], ['Безнал', x.cashCard], ['СБП', x.cashSbp], ['Яндекс доставка', x.yaDelivery], ['Яндекс самовывоз', x.yaPickup], ['Купер', x.cooper || 0]];
+  return '<div style="display:flex;flex-direction:column;gap:6px">' + ch.map((c) => '<div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="width:10px;height:10px;border-radius:3px;background:' + CH_COLORS[c[0]] + ';flex:none"></span><span class="muted" style="flex:1">' + c[0] + '</span><b class="num">' + money(c[1]) + '</b><span class="muted num" style="width:44px;text-align:right">' + (x.gross ? Math.round(c[1] / x.gross * 100) + '%' : '') + '</span></div>').join('') + '</div>';
 }
 function cooperBox(day) {
   const can = S.data.revenue.canEditCooper;
@@ -743,7 +747,7 @@ function renderSheet() {
     title = longDate(x.date);
     body = '<div class="num" style="font-size:30px;font-weight:800">' + money(x.gross) + ' ₽</div><div class="fields">' +
       [['Наличные', x.cashNal], ['Безнал', x.cashCard], ['СБП', x.cashSbp], ['Касса итого', x.cash], ['Чеков', x.checks, true], ['Средний чек', x.avgCheck], ['Яндекс доставка', x.yaDelivery], ['Яндекс самовывоз', x.yaPickup], ['Заказов Яндекса', x.yaOrders, true]].map((r) => '<label><span>' + r[0] + '</span><span class="num" style="color:var(--ink);font-weight:700">' + money(r[1]) + '</span></label>').join('') + '</div>' +
-      '<div class="g3" style="grid-template-columns:1fr">' + cooperBox(x) + '</div>';
+      dayChannels(x) + '<div class="g3" style="grid-template-columns:1fr">' + cooperBox(x) + '</div>';
   } else if (sh.kind === 'user') {
     const x = sh.ctx.i >= 0 ? d.users[sh.ctx.i] : { email: '', name: '', role: 'employee', employee: '' };
     const role = sh.ctx.role || x.role;
