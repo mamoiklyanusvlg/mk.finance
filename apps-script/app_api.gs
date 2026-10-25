@@ -22,6 +22,7 @@ const APP_SETUP = {
 };
 
 const APP = {
+  VERSION: 3, // растёт при каждом обновлении этого файла; приложение по нему понимает, что код в Apps Script свежий
   SESSION_DAYS: 60,
   // Сотрудник может отмечать свою смену за сегодня и столько дней назад
   EMPLOYEE_SHIFT_DAYS_BACK: 1,
@@ -362,6 +363,7 @@ function appAuthorTag_(user) {
 function appLoad_(user, p) {
   const m = appMonth_(p.month);
   const out = {
+    apiVersion: APP.VERSION,
     user: appPublicUser_(user),
     month: appMonthInfo_(m),
     hasPrev: !!PropertiesService.getScriptProperties().getProperty('MF_PREV_ID'),
@@ -577,12 +579,22 @@ function appSaveReceipt_(m, photo, iso, counterparty, sum) {
       props.setProperty('APP_RECEIPTS_FOLDER_ID', folder.getId());
     }
   }
-  const mime = /^(image\/(jpeg|png|heic|webp)|application\/pdf)$/.test(photo.mime) ? photo.mime : 'image/jpeg';
+  const bytes = Utilities.base64Decode(String(photo.data).replace(/^data:[^,]+,/, ''));
+  const mime = appSniffMime_(bytes, photo.mime);
   const ext = mime.split('/')[1].replace('jpeg', 'jpg');
   const name = [iso, counterparty || 'чек', Math.round(sum)].join(' ').replace(/[\\/:*?"<>|]/g, '') + '.' + ext;
-  const bytes = Utilities.base64Decode(String(photo.data).replace(/^data:[^,]+,/, ''));
   if (bytes.length > 8 * 1024 * 1024) throw appError_('bad_request', 'Файл слишком большой');
   return folder.createFile(Utilities.newBlob(bytes, mime, name)).getUrl();
+}
+
+/** Тип файла по первым байтам: телефон не всегда правильно называет тип PDF и фото. */
+function appSniffMime_(bytes, declared) {
+  const b = (i) => (bytes[i] + 256) % 256;
+  if (b(0) === 0x25 && b(1) === 0x50 && b(2) === 0x44 && b(3) === 0x46) return 'application/pdf';
+  if (b(0) === 0x89 && b(1) === 0x50) return 'image/png';
+  if (b(0) === 0xFF && b(1) === 0xD8) return 'image/jpeg';
+  if (b(8) === 0x57 && b(9) === 0x45 && b(10) === 0x42 && b(11) === 0x50) return 'image/webp';
+  return /^(image\/(jpeg|png|webp)|application\/pdf)$/.test(declared) ? declared : 'image/jpeg';
 }
 
 /** Распознать фото чека тем же Claude, что и Telegram-бот (rcRecognize_ из receipts_bot.gs). Ничего не записывает. */
@@ -591,8 +603,8 @@ function appRecognizeReceipt_(user, m, p) {
   if (typeof rcRecognize_ !== 'function') throw appError_('setup', 'Распознавание недоступно: нет receipts_bot.gs в проекте');
   if (!p.photo || !p.photo.data) throw appError_('bad_request', 'Нет фото');
   // Фото чека или PDF накладной — как в боте
-  const mime = /^(image\/(jpeg|png|webp)|application\/pdf)$/.test(p.photo.mime) ? p.photo.mime : 'image/jpeg';
   const bytes = Utilities.base64Decode(String(p.photo.data).replace(/^data:[^,]+,/, ''));
+  const mime = appSniffMime_(bytes, p.photo.mime);
   if (bytes.length > 7 * 1024 * 1024) throw appError_('bad_request', 'Файл слишком большой, до 7 МБ');
   const cats = appDicts_(m).categories;
   const r = rcRecognize_(Utilities.newBlob(bytes, mime, 'receipt'), mime, '', cats);

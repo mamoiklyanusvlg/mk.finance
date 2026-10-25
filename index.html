@@ -913,7 +913,9 @@ document.addEventListener('change', async (ev) => {
     syncDrafts();
     const f = S.draft.exp;
     try {
-      f.photo = t.files[0].type === 'application/pdf' ? await readPdf(t.files[0]) : await resizeImage(t.files[0]);
+      const file = t.files[0], isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+      if (isPdf && !(S.data.apiVersion >= 3)) throw new Error('Для PDF обновите код API в Apps Script (новый app_api.gs и «Новая версия» развёртывания)');
+      f.photo = isPdf ? await readPdf(file) : await resizeImage(file);
       render();
       setBusy(true, 'Распознаю чек…');
       const r = await api('recognizeReceipt', { photo: f.photo });
