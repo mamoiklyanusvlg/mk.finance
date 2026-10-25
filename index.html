@@ -56,7 +56,7 @@ a{color:var(--link)}
   .fab{bottom:32px!important;right:32px!important}
 }
 .brand{display:flex;align-items:center;gap:10px;padding:0 8px 20px}
-.logo{width:36px;height:36px;border-radius:10px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.logo{width:36px;height:36px;border-radius:10px;display:block;object-fit:cover;box-shadow:0 2px 8px rgba(22,26,32,.12)}
 
 /* блоки */
 .head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-top:24px}
@@ -160,7 +160,7 @@ button.row:first-child{border-top:0}
 .toast.err{background:var(--neg)}
 .loading{position:fixed;top:calc(10px + var(--safe-t));left:50%;transform:translateX(-50%);background:#fff;padding:8px 14px;border-radius:12px;font-size:13px;font-weight:700;color:var(--muted);z-index:50;box-shadow:0 4px 14px rgba(0,0,0,.08)}
 .login{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
-.login .logo{width:72px;height:72px;border-radius:20px;font-size:26px}
+.login .logo{width:96px;height:96px;border-radius:24px}
 .login h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
 .empty{padding:24px 0;text-align:center;color:var(--muted);font-size:14px}
 
@@ -329,8 +329,8 @@ function logout(expired) {
 }
 
 function renderLogin() {
-  if (NO_API) { app.innerHTML = '<div class="login"><div class="logo">МК</div><h1>Мамой клянусь</h1><div class="muted" style="font-size:15px;max-width:300px">Приложение ещё не подключено к таблице: впишите адрес API в config.js</div></div>'; return; }
-  app.innerHTML = '<div class="login"><div class="logo">МК</div><h1>Мамой клянусь</h1>' +
+  if (NO_API) { app.innerHTML = '<div class="login"><img class="logo" src="logo.png" alt="МК"><h1>Мамой клянусь</h1><div class="muted" style="font-size:15px;max-width:300px">Приложение ещё не подключено к таблице: впишите адрес API в config.js</div></div>'; return; }
+  app.innerHTML = '<div class="login"><img class="logo" src="logo.png" alt="МК"><h1>Мамой клянусь</h1>' +
     '<div class="muted" style="font-size:15px;max-width:300px">Финансы кафе: выручка, расходы, смены и деньги</div>' +
     '<button class="pill" data-act="google" style="display:flex;align-items:center;gap:10px;padding:13px 22px;font-size:15px;border-radius:22px">' +
     '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.5-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>' +
@@ -392,7 +392,7 @@ function navActive(r) {
 
 function render() {
   if (!S.session && !DEMO) return renderLogin();
-  if (!S.data) { app.innerHTML = '<div class="login"><div class="logo">МК</div><div class="muted">Загружаю…</div></div>'; return; }
+  if (!S.data) { app.innerHTML = '<div class="login"><img class="logo" src="logo.png" alt="МК"><div class="muted">Загружаю…</div></div>'; return; }
   const u = S.data.user;
   const tabs = tabsFor(u);
   let r = route();
@@ -404,7 +404,7 @@ function render() {
   const screens = { home: vHome, revenue: vRevenue, expenses: vExpenses, fixed: vFixed, 'expense-new': vAddExpense, payroll: vPayroll, money: vMoney, correction: vCorrection, users: vUsers };
   const d = S.data;
   const meta = { rev: d.revenue && shortMoney(d.revenue.totals.gross), exp: d.expenses && shortMoney(d.expenses.total), pay: d.payroll && shortMoney(d.payroll.totalAccrued), money: d.cashflow && d.cashflow.now && shortMoney(d.cashflow.now.total) };
-  const side = '<nav class="side" aria-label="Разделы"><div class="brand"><div class="logo">МК</div><div style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:800">Мамой клянусь</span><span class="muted" style="font-size:12px">' + esc(u.name) + ' · ' + esc(u.roleName) + '</span></div></div>' +
+  const side = '<nav class="side" aria-label="Разделы"><div class="brand"><img class="logo" src="logo.png" alt="МК"><div style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:800">Мамой клянусь</span><span class="muted" style="font-size:12px">' + esc(u.name) + ' · ' + esc(u.roleName) + '</span></div></div>' +
     tabs.map((t) => '<a href="' + t[2] + '" class="' + (act === t[0] ? 'on' : '') + '"><span>' + t[1] + '</span><span>' + (meta[t[0]] || '') + '</span></a>').join('') +
     (u.perms.fixed !== 'none' ? '<a href="#/fixed" class="' + (r === 'fixed' ? 'on' : '') + '"><span>Постоянные</span><span>' + (d.fixed ? shortMoney(d.fixed.total) : '') + '</span></a>' : '') +
     (u.perms.settings === 'edit' ? '<a href="#/users" class="' + (act === 'users' ? 'on' : '') + '"><span>Пользователи и роли</span><span></span></a>' : '') +
