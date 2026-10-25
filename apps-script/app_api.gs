@@ -577,11 +577,11 @@ function appSaveReceipt_(m, photo, iso, counterparty, sum) {
       props.setProperty('APP_RECEIPTS_FOLDER_ID', folder.getId());
     }
   }
-  const mime = /^image\/(jpeg|png|heic|webp)$/.test(photo.mime) ? photo.mime : 'image/jpeg';
+  const mime = /^(image\/(jpeg|png|heic|webp)|application\/pdf)$/.test(photo.mime) ? photo.mime : 'image/jpeg';
   const ext = mime.split('/')[1].replace('jpeg', 'jpg');
   const name = [iso, counterparty || 'чек', Math.round(sum)].join(' ').replace(/[\\/:*?"<>|]/g, '') + '.' + ext;
   const bytes = Utilities.base64Decode(String(photo.data).replace(/^data:[^,]+,/, ''));
-  if (bytes.length > 8 * 1024 * 1024) throw appError_('bad_request', 'Фото слишком большое');
+  if (bytes.length > 8 * 1024 * 1024) throw appError_('bad_request', 'Файл слишком большой');
   return folder.createFile(Utilities.newBlob(bytes, mime, name)).getUrl();
 }
 
@@ -590,9 +590,10 @@ function appRecognizeReceipt_(user, m, p) {
   appRequire_(user, 'expenses', 'own');
   if (typeof rcRecognize_ !== 'function') throw appError_('setup', 'Распознавание недоступно: нет receipts_bot.gs в проекте');
   if (!p.photo || !p.photo.data) throw appError_('bad_request', 'Нет фото');
-  const mime = /^image\/(jpeg|png|webp)$/.test(p.photo.mime) ? p.photo.mime : 'image/jpeg';
+  // Фото чека или PDF накладной — как в боте
+  const mime = /^(image\/(jpeg|png|webp)|application\/pdf)$/.test(p.photo.mime) ? p.photo.mime : 'image/jpeg';
   const bytes = Utilities.base64Decode(String(p.photo.data).replace(/^data:[^,]+,/, ''));
-  if (bytes.length > 7 * 1024 * 1024) throw appError_('bad_request', 'Фото слишком большое');
+  if (bytes.length > 7 * 1024 * 1024) throw appError_('bad_request', 'Файл слишком большой, до 7 МБ');
   const cats = appDicts_(m).categories;
   const r = rcRecognize_(Utilities.newBlob(bytes, mime, 'receipt'), mime, '', cats);
   const date = /^\d{4}-\d{2}-\d{2}$/.test(String(r.date || '')) ? r.date : '';
