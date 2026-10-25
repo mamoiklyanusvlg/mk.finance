@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F1F3F5">
+<meta name="theme-color" content="#E4E6E9">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -18,8 +18,12 @@
 <script>if (!(window.MK_CONFIG || {}).API_URL) document.write('<script src="demo.js"><\/script>');</script>
 <style>
 :root{
-  --bg:#F1F3F5;--card:#FFFFFF;--ink:#15171A;--muted:#5F6670;--line:#E4E7EB;--chip:#F1F3F5;
-  --red:#D9381E;--link:#B42E17;--neg:#B42318;--pos:#0E7A5F;--yellow:#FFCC00;--dark2:#24272C;--soft:#C9CDD3;
+  --page:#E4E6E9;--bg:rgba(30,34,40,.055);--card:rgba(255,255,255,.55);--ink:#1B1E22;--muted:#5C626B;--line:rgba(30,34,40,.09);--chip:rgba(30,34,40,.055);
+  --red:#D9381E;--link:#B42E17;--neg:#B42318;--pos:#0E7A5F;--yellow:#FFCC00;--dark2:rgba(255,255,255,.08);--soft:#B9BEC6;
+  --glass:rgba(255,255,255,.55);--glass-hi:rgba(255,255,255,.78);--glass-b:rgba(255,255,255,.7);
+  --blur:blur(24px) saturate(170%);
+  --gshadow:0 10px 30px rgba(22,26,32,.07),0 1px 2px rgba(22,26,32,.05),inset 0 1px 0 rgba(255,255,255,.8);
+  --graphite:linear-gradient(160deg,rgba(58,62,70,.92),rgba(26,28,33,.95));
   --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box}
@@ -159,6 +163,37 @@ button.row:first-child{border-top:0}
 .login .logo{width:72px;height:72px;border-radius:20px;font-size:26px}
 .login h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
 .empty{padding:24px 0;text-align:center;color:var(--muted);font-size:14px}
+
+/* liquid glass, графит */
+html,body{background:var(--page)}
+body::before{content:'';position:fixed;inset:-20%;z-index:-1;pointer-events:none;
+  background:radial-gradient(38% 30% at 12% 8%,rgba(128,136,150,.6),transparent 70%),
+    radial-gradient(34% 28% at 92% 22%,rgba(96,104,118,.42),transparent 70%),
+    radial-gradient(40% 32% at 70% 88%,rgba(140,146,158,.5),transparent 70%),
+    radial-gradient(30% 26% at 8% 70%,rgba(200,204,210,.6),transparent 70%),
+    linear-gradient(180deg,#ECEEF0,#DFE2E6)}
+.card,.stat,.chipcard,.iconbtn,.pill.white,.btn.ghost,.loading,.warn{background:var(--glass);border:1px solid var(--glass-b);box-shadow:var(--gshadow);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+.card{border-radius:22px}
+.dark{background:var(--graphite);border:1px solid rgba(255,255,255,.12);box-shadow:0 14px 36px rgba(18,20,24,.22),inset 0 1px 0 rgba(255,255,255,.14);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+.dark .tile{border:1px solid rgba(255,255,255,.07)}
+.soft,.fields,.choice button,.cell,.radio{background:var(--bg)}
+.seg{background:var(--bg);border:1px solid rgba(255,255,255,.5)}
+.seg .on{background:var(--glass-hi);box-shadow:0 2px 8px rgba(22,26,32,.08),inset 0 1px 0 #fff}
+.radio.on{background:var(--glass-hi);border-color:var(--ink)}
+.btn,.fab{background:var(--graphite);border:1px solid rgba(255,255,255,.12);box-shadow:0 8px 22px rgba(18,20,24,.2),inset 0 1px 0 rgba(255,255,255,.16)}
+.btn.ghost{color:var(--ink)}
+.btn.dark2,.pill,.choice button.on,.toast{background:var(--graphite)}
+.toast,.pill{box-shadow:0 8px 22px rgba(18,20,24,.18),inset 0 1px 0 rgba(255,255,255,.14)}
+.toast.err{background:var(--neg)}
+.photo{border-color:rgba(30,34,40,.2);background:rgba(255,255,255,.3)}
+.tabbar{left:12px;right:12px;bottom:calc(10px + var(--safe-b));padding:6px 4px;border-radius:28px;background:rgba(255,255,255,.58);border:1px solid var(--glass-b);box-shadow:0 12px 34px rgba(22,26,32,.14),inset 0 1px 0 rgba(255,255,255,.85);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+.tabbar a.on{color:var(--ink)}
+.overlay{background:rgba(24,27,32,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet{background:rgba(246,247,249,.8);border:1px solid var(--glass-b);box-shadow:0 -10px 40px rgba(18,20,24,.18),inset 0 1px 0 #fff;backdrop-filter:blur(30px) saturate(170%);-webkit-backdrop-filter:blur(30px) saturate(170%)}
+@media (min-width:900px){
+  .side{background:rgba(255,255,255,.42);border-right:1px solid var(--glass-b);box-shadow:inset -1px 0 0 rgba(30,34,40,.04);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+  .side a.on{background:var(--glass-hi);box-shadow:0 2px 10px rgba(22,26,32,.07),inset 0 1px 0 #fff}
+}
 </style>
 </head>
 <body>
@@ -430,7 +465,7 @@ function vHome() {
     '<div class="stat"><div class="t">Фудкост</div><div class="v num">' + pct(s.other.foodcost) + '</div></div>' +
     '<a href="#/payroll" class="stat"><div class="t">ЗП к выплате</div><div class="v num">' + money(s.other.payrollDue) + ' ₽</div></a></div>';
   const actions = '<div style="display:flex;gap:8px;flex-wrap:wrap">' + (u.perms.money === 'edit' ? '<a class="pill white" href="#/correction">Корректировка</a>' : '') +
-    (u.perms.expenses === 'edit' ? '<a class="pill" style="background:var(--red)" href="#/expense-new">+ Расход</a>' : '') + '</div>';
+    (u.perms.expenses === 'edit' ? '<a class="pill" href="#/expense-new">+ Расход</a>' : '') + '</div>';
   const wide = window.matchMedia('(min-width:900px)').matches;
   if (wide) {
     return '<div class="head" style="align-items:flex-end"><div style="display:flex;flex-direction:column;gap:2px">' + monthHead(d.month.dataDate ? 'данные по ' + shortDate(d.month.dataDate) : '') + '<h1 style="font-size:30px">Сводка</h1></div>' + actions + '</div>' +
